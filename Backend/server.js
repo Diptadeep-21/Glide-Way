@@ -585,12 +585,13 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal Server Error' });
 });
 
-app.use((req, res) => {
-  res.status(404).json({ error: `Route not found: ${req.originalUrl}` });
-});
-
 app.get('/', (req, res) => {
   res.send("GlideWay API is live ✅");
+});
+
+
+app.use((req, res) => {
+  res.status(404).json({ error: `Route not found: ${req.originalUrl}` });
 });
 
 
