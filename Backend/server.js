@@ -572,7 +572,7 @@ app.put('/api/bookings/:bookingId/complete', authenticateToken, async (req, res)
 
 app.use('/api/auth', authRoutes);
 app.use('/api/bus', busRoutes);
-app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/upload', uploadRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/users', userRoutes);
