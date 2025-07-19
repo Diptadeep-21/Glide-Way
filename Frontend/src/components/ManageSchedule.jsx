@@ -45,7 +45,7 @@ const ManageSchedule = () => {
   const fetchBuses = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/bus/mybuses', {
+      const res = await axios.get('https://glide-way-backend.onrender.com/api/bus/mybuses', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -115,7 +115,7 @@ const ManageSchedule = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5000/api/bus/add', formDataToSend, {
+      const res = await axios.post('https://glide-way-backend.onrender.com/api/bus/add', formDataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -161,7 +161,7 @@ const ManageSchedule = () => {
   const handleDelete = async (busId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/bus/${busId}`, {
+      await axios.delete(`https://glide-way-backend.onrender.com/api/bus/${busId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -177,7 +177,7 @@ const ManageSchedule = () => {
 
   const handleImageError = (e) => {
     console.log('Image Failed to Load:', e.target.src);
-    e.target.src = 'http://localhost:5000/Uploads/no-image.png';
+    e.target.src = 'https://glide-way-backend.onrender.com/Uploads/no-image.png';
   };
 
   if (error) return <div className="text-center py-10 text-red-600 dark:text-red-400">{error}</div>;
@@ -422,14 +422,14 @@ const ManageSchedule = () => {
                 <td className="px-4 py-2 border">
                   {bus.image ? (
                     <img
-                      src={`http://localhost:5000/Uploads/${bus.image}`}
+                      src={`https://glide-way-backend.onrender.com/Uploads/${bus.image}`}
                       alt="Bus"
                       className="w-[50px] h-[50px] object-cover mx-auto rounded"
                       onError={handleImageError}
                     />
                   ) : (
                     <img
-                      src="http://localhost:5000/Uploads/no-image.png"
+                      src="https://glide-way-backend.onrender.com/Uploads/no-image.png"
                       alt="No Image"
                       className="w-[50px] h-[50px] object-cover mx-auto rounded"
                       onError={(e) => { e.target.alt = 'No Image'; e.target.style.display = 'none'; }}

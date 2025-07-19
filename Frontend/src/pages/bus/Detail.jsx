@@ -437,7 +437,7 @@ const Detail = () => {
             )}
             {bus.image ? (
               <motion.img
-                src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/Uploads/${bus.image}`}
+                src={`${import.meta.env.VITE_API_BASE_URL || 'https://glide-way-backend.onrender.com'}/Uploads/${bus.image}`}
                 alt={bus.busName}
                 className="w-full max-h-64 object-contain transition-transform duration-300 hover:scale-105"
                 loading="lazy"

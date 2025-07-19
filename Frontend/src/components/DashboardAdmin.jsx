@@ -149,21 +149,21 @@ const DashboardAdmin = () => {
         setIsLoading(true);
 
         // Fetch buses
-        const busesResponse = await axios.get('http://localhost:5000/api/bus/all', {
+        const busesResponse = await axios.get('https://glide-way-backend.onrender.com/api/bus/all', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 10000,
         });
         setBuses(Array.isArray(busesResponse.data.buses) ? busesResponse.data.buses : []);
 
         // Fetch booking trends
-        const bookingTrendsResponse = await axios.get('http://localhost:5000/api/bookings/trends', {
+        const bookingTrendsResponse = await axios.get('https://glide-way-backend.onrender.com/api/bookings/trends', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 10000,
         });
         setBookingTrends(Array.isArray(bookingTrendsResponse.data.trends) ? bookingTrendsResponse.data.trends : []);
 
         // Fetch daily booking trends
-        const dailyBookingTrendsResponse = await axios.get('http://localhost:5000/api/bookings/daily-trends', {
+        const dailyBookingTrendsResponse = await axios.get('https://glide-way-backend.onrender.com/api/bookings/daily-trends', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 10000,
         });
@@ -172,21 +172,21 @@ const DashboardAdmin = () => {
         );
 
         // Fetch revenue trends
-        const revenueTrendsResponse = await axios.get('http://localhost:5000/api/bookings/revenue-trends', {
+        const revenueTrendsResponse = await axios.get('https://glide-way-backend.onrender.com/api/bookings/revenue-trends', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 10000,
         });
         setRevenueTrends(Array.isArray(revenueTrendsResponse.data.trends) ? revenueTrendsResponse.data.trends : []);
 
         // Fetch drivers
-        const driversResponse = await axios.get('http://localhost:5000/api/users/drivers', {
+        const driversResponse = await axios.get('https://glide-way-backend.onrender.com/api/users/drivers', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 10000,
         });
         setDrivers(Array.isArray(driversResponse.data.drivers) ? driversResponse.data.drivers : []);
 
         // Fetch amenity analytics
-        const amenityResponse = await axios.get('http://localhost:5000/api/amenities/amenity-analytics', {
+        const amenityResponse = await axios.get('https://glide-way-backend.onrender.com/api/amenities/amenity-analytics', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 10000,
         });
@@ -199,7 +199,7 @@ const DashboardAdmin = () => {
         });
 
         // Fetch bus type distribution
-        const busTypeResponse = await axios.get('http://localhost:5000/api/bus/type-distribution', {
+        const busTypeResponse = await axios.get('https://glide-way-backend.onrender.com/api/bus/type-distribution', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 10000,
         });
@@ -208,7 +208,7 @@ const DashboardAdmin = () => {
         );
 
         // Fetch booking status breakdown
-        const bookingStatusResponse = await axios.get('http://localhost:5000/api/bookings/status-breakdown', {
+        const bookingStatusResponse = await axios.get('https://glide-way-backend.onrender.com/api/bookings/status-breakdown', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 10000,
         });
@@ -236,7 +236,7 @@ const DashboardAdmin = () => {
         if (!token) {
           throw new Error('No authentication token found');
         }
-        const response = await axios.get('http://localhost:5000/api/bookings/today-revenue', {
+        const response = await axios.get('https://glide-way-backend.onrender.com/api/bookings/today-revenue', {
           headers: { Authorization: `Bearer ${token}` },
           timeout: 5000,
         });
@@ -477,7 +477,7 @@ const DashboardAdmin = () => {
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const response = await axios.get(`http://localhost:5000/api/bus/${bus._id}`, {
+      const response = await axios.get(`https://glide-way-backend.onrender.com/api/bus/${bus._id}`, {
         headers,
         timeout: 10000,
       });
@@ -505,7 +505,7 @@ const DashboardAdmin = () => {
   const handleMaintenanceClick = async busId => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/bus/${busId}/maintenance`, {
+      const response = await axios.get(`https://glide-way-backend.onrender.com/api/bus/${busId}/maintenance`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 5000,
       });
@@ -529,13 +529,13 @@ const DashboardAdmin = () => {
   const scheduleMaintenance = async (busId, date, type) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/api/bus/${busId}/maintenance`, { date, type }, {
+      await axios.post(`https://glide-way-backend.onrender.com/api/bus/${busId}/maintenance`, { date, type }, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         timeout: 5000,
       });
       toast.success('Maintenance scheduled successfully');
       setMaintenanceModal(null);
-      const busesResponse = await axios.get('http://localhost:5000/api/bus/all', {
+      const busesResponse = await axios.get('https://glide-way-backend.onrender.com/api/bus/all', {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 10000,
       });
@@ -549,7 +549,7 @@ const DashboardAdmin = () => {
   const handleAmenityDetailsClick = async busId => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`http://localhost:5000/api/amenities/ratings/bus/${busId}/details`, {
+      const response = await axios.get(`https://glide-way-backend.onrender.com/api/amenities/ratings/bus/${busId}/details`, {
         headers: { Authorization: `Bearer ${token}` },
         timeout: 5000,
       });

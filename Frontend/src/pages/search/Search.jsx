@@ -42,7 +42,7 @@ const Search = () => {
     }
 
     try {
-      const busResponse = await axios.get(`http://localhost:5000/api/bus/search`, {
+      const busResponse = await axios.get(`https://glide-way-backend.onrender.com/api/bus/search`, {
         params: {
           from: formData.from.trim(),
           to: formData.to.trim(),

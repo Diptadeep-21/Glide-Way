@@ -17,7 +17,7 @@ const ManageDriver = () => {
       return;
     }
 
-    fetch('http://localhost:5000/api/admin/drivers', {
+    fetch('https://glide-way-backend.onrender.com/api/admin/drivers', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -48,7 +48,7 @@ const ManageDriver = () => {
   const handleUpdate = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/drivers/${editingDriver._id}`, {
+      const res = await fetch(`https://glide-way-backend.onrender.com/api/admin/drivers/${editingDriver._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ const ManageDriver = () => {
     if (!window.confirm('Are you sure you want to delete this driver?')) return;
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/drivers/${driverId}`, {
+      const res = await fetch(`https://glide-way-backend.onrender.com/api/admin/drivers/${driverId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
