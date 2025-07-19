@@ -589,5 +589,10 @@ app.use((req, res) => {
   res.status(404).json({ error: `Route not found: ${req.originalUrl}` });
 });
 
+app.get('/', (req, res) => {
+  res.send("GlideWay API is live ✅");
+});
+
+
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
