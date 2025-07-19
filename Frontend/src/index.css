@@ -1,0 +1,66 @@
+/*  */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+/* Ensure MapLibre GL styles are included */
+@import url('https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css');
+
+main {
+  min-height: 100vh !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.maplibregl-map {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  background: #f9fafb;
+}
+
+::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cacaca;
+  border-radius: 8px;
+  transition: all 0.5s ease-out;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a4a4a4;
+  border-radius: 8px;
+}
+
+/*Hero background*/
+.hero{
+  background: linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.05)), url("./assets/bg3.png") ;
+  -webkit-background-size: cover;
+  background-position: center bottom;
+  background-size: cover;
+  background-repeat: no-repeat;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}            
+
+
+
