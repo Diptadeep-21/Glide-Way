@@ -24,7 +24,7 @@ exports.forgotPassword = async (req, res) => {
     user.resetTokenExpiry = resetTokenExpiry;
     await user.save();
 
-    const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+    const resetLink = `https://glide-way-frontend.onrender.com/reset-password/${resetToken}`;
     await sendEmail(user.email, 'Password Reset Request', `Click here to reset your password: ${resetLink}`);
 
     res.json({ message: 'Password reset link sent to email.' });
