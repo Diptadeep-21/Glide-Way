@@ -19,7 +19,7 @@ const getWindowSeats = (totalSeats) => {
 };
 
 const calculateDynamicFare = (baseFare, selectedSeats, busData, travelDate) => {
- if (!busData || !busData.totalSeats || !baseFare) {
+  if (!busData || !busData.totalSeats || !baseFare) {
     return { totalFare: 0, baseFare: 0, dynamicSurcharge: 0, windowSeatSurcharge: 0, groupDiscount: 0, breakdown: {} };
   }
 
@@ -123,13 +123,13 @@ const Checkout = () => {
           return;
         }
 
-        const userResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/me`, {
+        const userResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         let bus;
         try {
-          const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/bus/${busId}`);
+          const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/bus/${busId}`);
           bus = busResponse.data.bus;
         } catch (busError) {
           if (busError.response?.status === 404) {
@@ -190,14 +190,8 @@ const Checkout = () => {
   useEffect(() => {
     if (bookingData && busData && bookingData.selectedSeats && bookingData.travelDate) {
       const baseFare = busData.fare || 500;
-      setDynamicFare({
-      totalFare: Number(bookingData.totalFare),
-      baseFare: baseFare * bookingData.selectedSeats.length,
-      dynamicSurcharge: 0,
-      windowSeatSurcharge: 0,
-      groupDiscount: bookingData.isGroupBooking ? 5 : 0
-      });
-
+      const fareDetails = calculateDynamicFare(baseFare, bookingData.selectedSeats, busData, bookingData.travelDate);
+      setDynamicFare(fareDetails);
     }
   }, [bookingData, busData]);
 
@@ -284,7 +278,7 @@ const Checkout = () => {
       busId,
       selectedSeats: bookingData.selectedSeats,
       travelDate: bookingData.travelDate,
-      totalFare: Number(bookingData.totalFare),
+      totalFare: dynamicFare.totalFare,
       contactDetails: {
         email: sanitizedEmail,
         phone: formData.contactDetails.phone,
@@ -317,14 +311,6 @@ const Checkout = () => {
       setIsSubmitting(false);
       return;
     }
-
-    console.log('DEBUG totalFare:', {
-  payloadTotalFare: payload.totalFare,
-  bookingDataFare: bookingData.totalFare,
-  dynamicFare: dynamicFare?.totalFare
-});
-
-    
     if (!Number.isFinite(payload.totalFare) || payload.totalFare <= 0) {
       alert('Invalid total fare.');
       setIsSubmitting(false);
@@ -335,7 +321,7 @@ const Checkout = () => {
 
     const token = localStorage.getItem('token');
     try {
-      const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/bus/${busId}`);
+      const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/bus/${busId}`);
       const bus = busResponse.data.bus;
       const confirmedBookedSeats = bus.bookedSeats || [];
       const pendingSeats = bus.pendingBookings
@@ -356,7 +342,7 @@ const Checkout = () => {
       }
 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/bookings`,
+        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/bookings`,
         payload,
         {
           headers: { Authorization: `Bearer ${token}` },
