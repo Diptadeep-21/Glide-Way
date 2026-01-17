@@ -10,7 +10,7 @@ const Profile = () => {
         const token = localStorage.getItem('token');
 
         if (token) {
-            axios.get('http://glide-way-backend.onrender.com/api/users/me', {
+            axios.get('https://glide-way-backend.onrender.com/api/users/me', {
                 headers: { Authorization: `Bearer ${token}` }
             })
                 .then(res => {
@@ -48,7 +48,7 @@ const Profile = () => {
         console.log('Sending update:', payload);
 
         try {
-            const res = await axios.put('http://glide-way-backend.onrender.com/api/users/me', payload, {
+            const res = await axios.put('https://glide-way-backend.onrender.com/api/users/me', payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
