@@ -252,7 +252,7 @@ router.get('/mybuses', authenticate, async (req, res) => {
     const buses = await Bus.find({ driverId: req.user.id });
     const busesWithImages = buses.map(bus => ({
       ...bus.toObject(),
-      imageUrl: bus.image ? `${process.env.SERVER_URL}/Uploads/${bus.image}` : null,
+      imageUrl: bus.image ? `${process.env.SERVER_URL}/uploads/${bus.image}` : null,
       currentLocation: bus.currentLocation,
       isTrackingEnabled: bus.isTrackingEnabled,
       haltingTime: bus.haltingTime,
