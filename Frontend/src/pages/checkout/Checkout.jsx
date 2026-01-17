@@ -129,7 +129,7 @@ const Checkout = () => {
 
         let bus;
         try {
-          const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL'}/api/bus/${busId}`);
+          const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/bus/${busId}`);
           bus = busResponse.data.bus;
         } catch (busError) {
           if (busError.response?.status === 404) {
@@ -335,7 +335,7 @@ const Checkout = () => {
 
     const token = localStorage.getItem('token');
     try {
-      const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL'}/api/bus/${busId}`);
+      const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/bus/${busId}`);
       const bus = busResponse.data.bus;
       const confirmedBookedSeats = bus.bookedSeats || [];
       const pendingSeats = bus.pendingBookings
