@@ -18,7 +18,7 @@ const ManageBus = () => {
       return;
     }
 
-    fetch('http://localhost:5000/api/admin/buses', {
+    fetch('http://glide-way-backend.onrender.com/api/admin/buses', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -51,7 +51,7 @@ const ManageBus = () => {
   const handleUpdate = async () => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/buses/${editingBus._id}`, {
+      const res = await fetch(`http://glide-way-backend.onrender.com/api/admin/buses/${editingBus._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ const ManageBus = () => {
     if (!window.confirm('Are you sure you want to delete this bus?')) return;
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/buses/${busId}`, {
+      const res = await fetch(`http://glide-way-backend.onrender.com/api/admin/buses/${busId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
