@@ -147,7 +147,7 @@ router.post('/', authenticate, async (req, res) => {
       busId,
       selectedSeats,
       travelDate,
-      //totalFare,
+      totalFare,
       contactDetails,
       passengers,
       boardingPoint,
@@ -157,7 +157,7 @@ router.post('/', authenticate, async (req, res) => {
     } = req.body;
     const userId = req.user.id;
 
-    const requiredFields = ['busId', 'selectedSeats', 'travelDate', 'contactDetails', 'passengers'];
+    const requiredFields = ['busId', 'selectedSeats', 'travelDate', 'totalFare', 'contactDetails', 'passengers'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
     if (missingFields.length > 0) {
       return res.status(400).json({
@@ -246,18 +246,13 @@ router.post('/', authenticate, async (req, res) => {
     }
 
     const fareDetails = calculateDynamicFare(bus.fare, selectedSeats, bus, travelDate);
-    if (!Number.isFinite(fareDetails.totalFare) ||fareDetails.totalFare <= 0) {
-    return res.status(400).json({
-    error: 'Invalid fare calculated on server',});
+    if (Math.abs(totalFare - fareDetails.totalFare) > 1) {
+      return res.status(400).json({
+        error: 'Invalid total fare provided',
+        expectedFare: fareDetails.totalFare,
+        providedFare: totalFare,
+      });
     }
-
-    // if (Math.abs(totalFare - fareDetails.totalFare) > 1) {
-    //   return res.status(400).json({
-    //     error: 'Invalid total fare provided',
-    //     expectedFare: fareDetails.totalFare,
-    //     providedFare: totalFare,
-    //   });
-    // }
 
     const bookings = await Booking.find({
       busId: bus._id,
