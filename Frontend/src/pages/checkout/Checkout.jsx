@@ -19,11 +19,12 @@ const getWindowSeats = (totalSeats) => {
 };
 
 const calculateDynamicFare = (baseFare, selectedSeats, busData, travelDate) => {
-  if (!busData || !busData.totalSeats || !baseFare) {
+  if (!busData || (!busData.totalSeats && !busData.seats)  || !baseFare) {
     return { totalFare: 0, baseFare: 0, dynamicSurcharge: 0, windowSeatSurcharge: 0, groupDiscount: 0, breakdown: {} };
   }
 
-  const { totalSeats, bookedSeats = [] } = busData;
+  const totalSeats = busData.totalSeats || busData.seats;
+  const bookedSeats = busData.bookedSeats || [];
   const availableSeats = totalSeats - bookedSeats.length;
   const bookedPercentage = bookedSeats.length / totalSeats;
   const availabilityRatio = availableSeats / totalSeats;
