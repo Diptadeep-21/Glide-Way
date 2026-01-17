@@ -356,7 +356,7 @@ const Checkout = () => {
       }
 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL '}/api/bookings`,
+        `${import.meta.env.VITE_API_BASE_URL}/api/bookings`,
         payload,
         {
           headers: { Authorization: `Bearer ${token}` },
