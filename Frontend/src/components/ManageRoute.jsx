@@ -16,7 +16,7 @@ const ManageRoute = () => {
       return;
     }
 
-    fetch('http://localhost:5000/api/admin/routes', {
+    fetch('http://glide-way-backend.onrender.com/api/admin/routes', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -44,7 +44,7 @@ const ManageRoute = () => {
     if (!window.confirm(`Are you sure you want to delete the route ${route.source} to ${route.destination}? This will delete all associated buses and bookings.`)) return;
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('http://localhost:5000/api/admin/routes', {
+      const res = await fetch('http://glide-way-backend.onrender.com/api/admin/routes', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
