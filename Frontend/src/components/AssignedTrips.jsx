@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
-const socket = io('https://glide-way-backend.onrender.com'); // Match the backend URL
+const socket = io('http://localhost:5000'); // Match the backend URL
 
 const AssignedTrips = () => {
   const [trips, setTrips] = useState([]);
@@ -20,7 +20,7 @@ const AssignedTrips = () => {
         throw new Error('No authentication token found. Please log in.');
       }
 
-      const res = await fetch('https://glide-way-backend.onrender.com/api/bus/assigned', {
+      const res = await fetch('http://localhost:5000/api/bus/assigned', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

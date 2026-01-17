@@ -80,7 +80,12 @@ const EditSchedule = () => {
           boardingPoints: bus.boardingPoints?.join(', ') || '',
           busType: bus.busType || 'AC',
         });
-        setExistingImageUrl(bus.imageUrl || '');
+        setExistingImageUrl(
+          bus.image
+            ? `${import.meta.env.VITE_API_BASE_URL}/Uploads/${bus.image}`
+            : ''
+        );
+
         setLoading(false);
       } catch (err) {
         console.error('Error fetching bus data:', err);
@@ -339,8 +344,16 @@ const EditSchedule = () => {
             className="p-3 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-neutral-700 text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-100 dark:file:bg-violet-600 file:text-violet-700 dark:file:text-white hover:file:bg-violet-200 dark:hover:file:bg-violet-700 transition-all duration-200"
           />
           {existingImageUrl && !imageFile && (
-            <img src={existingImageUrl} alt="Current Bus" className="w-32 h-32 mt-4 object-cover rounded-lg shadow-md" />
+            <img
+              src={existingImageUrl}
+              alt="Current Bus"
+              className="w-32 h-32 mt-4 object-cover rounded-lg shadow-md"
+              onError={(e) => {
+                e.target.src = `${import.meta.env.VITE_API_BASE_URL}/Uploads/no-image.png`;
+              }}
+            />
           )}
+
         </div>
         <div className="md:col-span-2 text-center">
           <button

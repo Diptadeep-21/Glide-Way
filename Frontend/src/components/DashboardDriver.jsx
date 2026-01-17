@@ -23,7 +23,7 @@ const DriverDashboard = () => {
           throw new Error('Authentication token not found');
         }
 
-        const response = await axios.get('https://glide-way-backend.onrender.com/api/users/driver/performance', {
+        const response = await axios.get('http://localhost:5000/api/users/driver/performance', {
           headers: { Authorization: `Bearer ${token}` },
         });
 

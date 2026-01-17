@@ -11,6 +11,12 @@ const GroupMessage = require('../models/GroupMessage'); // New import
 const { subHours, startOfHour, subDays, startOfDay } = require('date-fns');
 
 // Nodemailer transporter
+console.log("SMTP DEBUG:", {
+  user: process.env.EMAIL_USER,
+  passExists: !!process.env.EMAIL_PASS,
+  passLength: process.env.EMAIL_PASS?.length,
+});
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,

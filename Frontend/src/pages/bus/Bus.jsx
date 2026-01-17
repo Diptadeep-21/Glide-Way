@@ -48,7 +48,7 @@ const Bus = () => {
           setBuses(state.buses);
           setFilteredBuses(state.buses);
         } else {
-          const response = await axios.get('https://glide-way-backend.onrender.com/api/bus/all');
+          const response = await axios.get('http://localhost:5000/api/bus/all');
           setBuses(response.data.buses);
           setFilteredBuses(response.data.buses);
         }
