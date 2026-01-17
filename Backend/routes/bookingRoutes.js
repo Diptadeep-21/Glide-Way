@@ -147,7 +147,7 @@ router.post('/', authenticate, async (req, res) => {
       busId,
       selectedSeats,
       travelDate,
-      totalFare,
+      //totalFare,
       contactDetails,
       passengers,
       boardingPoint,
@@ -246,6 +246,11 @@ router.post('/', authenticate, async (req, res) => {
     }
 
     const fareDetails = calculateDynamicFare(bus.fare, selectedSeats, bus, travelDate);
+    if (!Number.isFinite(fareDetails.totalFare) ||fareDetails.totalFare <= 0) {
+    return res.status(400).json({
+    error: 'Invalid fare calculated on server',});
+    }
+
     // if (Math.abs(totalFare - fareDetails.totalFare) > 1) {
     //   return res.status(400).json({
     //     error: 'Invalid total fare provided',
