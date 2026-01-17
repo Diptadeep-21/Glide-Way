@@ -284,7 +284,7 @@ const Checkout = () => {
       busId,
       selectedSeats: bookingData.selectedSeats,
       travelDate: bookingData.travelDate,
-      totalFare: dynamicFare.totalFare,
+      totalFare: Number(bookingData.totalFare),
       contactDetails: {
         email: sanitizedEmail,
         phone: formData.contactDetails.phone,
