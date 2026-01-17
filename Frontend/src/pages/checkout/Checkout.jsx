@@ -123,13 +123,13 @@ const Checkout = () => {
           return;
         }
 
-        const userResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/users/me`, {
+        const userResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL'}/api/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         let bus;
         try {
-          const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/bus/${busId}`);
+          const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL'}/api/bus/${busId}`);
           bus = busResponse.data.bus;
         } catch (busError) {
           if (busError.response?.status === 404) {
@@ -278,7 +278,7 @@ const Checkout = () => {
       busId,
       selectedSeats: bookingData.selectedSeats,
       travelDate: bookingData.travelDate,
-      //totalFare: dynamicFare.totalFare,
+      totalFare: dynamicFare.totalFare,
       contactDetails: {
         email: sanitizedEmail,
         phone: formData.contactDetails.phone,
@@ -321,7 +321,7 @@ const Checkout = () => {
 
     const token = localStorage.getItem('token');
     try {
-      const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/bus/${busId}`);
+      const busResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL'}/api/bus/${busId}`);
       const bus = busResponse.data.bus;
       const confirmedBookedSeats = bus.bookedSeats || [];
       const pendingSeats = bus.pendingBookings
@@ -342,7 +342,7 @@ const Checkout = () => {
       }
 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/bookings`,
+        `${import.meta.env.VITE_API_BASE_URL '}/api/bookings`,
         payload,
         {
           headers: { Authorization: `Bearer ${token}` },
