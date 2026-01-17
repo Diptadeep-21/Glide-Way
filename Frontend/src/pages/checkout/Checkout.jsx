@@ -190,8 +190,14 @@ const Checkout = () => {
   useEffect(() => {
     if (bookingData && busData && bookingData.selectedSeats && bookingData.travelDate) {
       const baseFare = busData.fare || 500;
-      const fareDetails = calculateDynamicFare(baseFare, bookingData.selectedSeats, busData, bookingData.travelDate);
-      setDynamicFare(fareDetails);
+      setDynamicFare({
+      totalFare: Number(bookingData.totalFare),
+      baseFare: baseFare * bookingData.selectedSeats.length,
+      dynamicSurcharge: 0,
+      windowSeatSurcharge: 0,
+      groupDiscount: bookingData.isGroupBooking ? 5 : 0
+      });
+
     }
   }, [bookingData, busData]);
 
