@@ -123,7 +123,7 @@ const Checkout = () => {
           return;
         }
 
-        const userResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL'}/api/users/me`, {
+        const userResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/users/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
