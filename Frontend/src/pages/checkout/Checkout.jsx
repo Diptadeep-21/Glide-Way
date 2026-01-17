@@ -317,6 +317,14 @@ const Checkout = () => {
       setIsSubmitting(false);
       return;
     }
+
+    console.log('DEBUG totalFare:', {
+  payloadTotalFare: payload.totalFare,
+  bookingDataFare: bookingData.totalFare,
+  dynamicFare: dynamicFare?.totalFare
+});
+
+    
     if (!Number.isFinite(payload.totalFare) || payload.totalFare <= 0) {
       alert('Invalid total fare.');
       setIsSubmitting(false);
