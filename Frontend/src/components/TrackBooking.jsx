@@ -50,7 +50,7 @@ const TrackBooking = () => {
 
     const fetchBookings = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/bookings/mybookings', {
+        const response = await fetch('http://glide-way-backend.onrender.com/api/bookings/mybookings', {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!response.ok) {
@@ -98,7 +98,7 @@ const TrackBooking = () => {
         throw new Error('Please enter a valid earnings amount.');
       }
 
-      const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}/complete`, {
+      const response = await fetch(`http://glide-way-backend.onrender.com/api/bookings/${bookingId}/complete`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
