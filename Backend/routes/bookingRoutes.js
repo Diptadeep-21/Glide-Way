@@ -357,7 +357,9 @@ router.post('/', authenticate, async (req, res) => {
       { new: true }
     );
 
-    await sendBookingEmail(booking, bus);
+    sendBookingEmail(booking, bus)
+  .catch(err => console.error('Email failed:', err.message));
+
 
 
     if (isGroupBooking) {
