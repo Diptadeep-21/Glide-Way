@@ -6,7 +6,7 @@ const Booking = require('../models/Booking');
 const Bus = require('../models/Bus');
 const { getAssignedBuses, getBookingsByBus } = require('../controllers/bookingController');
 
-// Multer setup
+// Multer setup.
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
