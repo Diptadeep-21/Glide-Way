@@ -589,6 +589,9 @@ app.get('/', (req, res) => {
   res.send("GlideWay API is live ✅");
 });
 
+app.get('/health', (req, res) => {
+  res.send('OK');
+});
 
 app.use((req, res) => {
   res.status(404).json({ error: `Route not found: ${req.originalUrl}` });
