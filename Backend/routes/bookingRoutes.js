@@ -10,6 +10,23 @@ const Message = require('../models/Message');
 const GroupMessage = require('../models/GroupMessage'); // New import
 const { subHours, startOfHour, subDays, startOfDay } = require('date-fns');
 
+//Test-email at production
+router.get('/__email-test', async (req, res) => {
+  sendBookingEmail({
+    _id: 'TEST123',
+    seatsBooked: [1],
+    totalFare: 500,
+    contactDetails: { email: process.env.EMAIL_USER },
+  }, {
+    source: 'A',
+    destination: 'B',
+  });
+
+  res.json({ success: true });
+});
+
+
+
 // Nodemailer transporter
 console.log("SMTP DEBUG:", {
   user: process.env.EMAIL_USER,
