@@ -8,7 +8,7 @@
 - [🌟 Introduction](#-introduction)
 - [✨ Features](#-features)
   - [👥 Passenger Features](#-passenger-features)
-  - [🧑‍✈️🚌 Driver Tools](#-driver-tools)
+  - [🚌 Driver Tools](#-driver-tools)
   - [🛡️ Admin Dashboard](#-admin-dashboard)
   - [🚀 Unique Functionalities](#-unique-functionalities)
 - [📸 Screenshots](#-screenshots)
