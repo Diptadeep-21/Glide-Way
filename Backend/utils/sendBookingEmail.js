@@ -13,6 +13,11 @@ const sendBookingEmail = async (booking) => {
     const emailRaw = booking.contactDetails?.email || '';
     const email = emailRaw.trim().replace(/['"]/g, '');
 
+    if (!email) {
+    console.error('❌ No email found for booking:', booking._id);
+    return;
+    }
+
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
