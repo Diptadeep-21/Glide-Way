@@ -26,7 +26,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'https://glide-way-frontend.onrender.com',
+    origin: [
+      "http://localhost:3000",
+      "https://glide-way-frontend.onrender.com"
+    ],
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -396,7 +399,10 @@ socket.on('sendGroupMessage', async ({ bookingId, userId, message, timestamp }) 
 });
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+      "http://localhost:3000",
+      "https://glide-way-frontend.onrender.com"
+    ],
   credentials: true,
 }));
 app.use(express.json());
