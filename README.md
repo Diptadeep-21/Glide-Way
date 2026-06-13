@@ -1,4 +1,4 @@
-# GlideWay: The Ultimate Smart Bus Booking Platform.
+# GlideWay: The Ultimate Smart Bus Booking Platform
 
 | GlideWay: Redefining Bus Travel |
 |---------------------------------|
