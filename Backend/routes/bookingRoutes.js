@@ -110,43 +110,146 @@ const getWindowSeats = (totalSeats) => {
   return [];
 };
 
+// // Calculate dynamic fare
+// const calculateDynamicFare = (baseFare, selectedSeats, bus, travelDate) => {
+//   if (!bus || !bus.totalSeats) return { totalFare: baseFare * selectedSeats.length, breakdown: {} };
+
+//   const { totalSeats, bookedSeats = [], departureTime } = bus;
+//   const availableSeats = totalSeats - bookedSeats.length;
+//   const bookedPercentage = bookedSeats.length / totalSeats;
+//   const availabilityRatio = availableSeats / totalSeats;
+
+//   const demandMultiplier = bookedPercentage > 0.7 ? 1.2 : bookedPercentage > 0.5 ? 1.1 : 1.0;
+//   const departureDate = new Date(departureTime);
+//   const hours = departureDate.getHours();
+//   const isPeakTime = hours >= 17 && hours <= 22;
+//   const timeMultiplier = isPeakTime ? 1.15 : 1.0;
+//   const timeUntilTravel = (new Date(travelDate) - new Date()) / (1000 * 60 * 60);
+//   const urgencyMultiplier = timeUntilTravel < 24 ? 1.1 : 1.0;
+//   const availabilityMultiplier = availabilityRatio < 0.2 ? 1.25 : availabilityRatio < 0.4 ? 1.15 : 1.0;
+
+//   const windowSeats = getWindowSeats(totalSeats);
+//   const windowSeatCount = selectedSeats.filter(seat => windowSeats.includes(seat)).length;
+//   const windowSeatSurcharge = windowSeatCount * 100;
+
+//   const groupSize = selectedSeats.length;
+//   const isGroupBooking = groupSize >= 4; // Define group booking threshold
+//   const groupDiscount = isGroupBooking ? 0.95 : 1.0; // 5% discount for groups
+
+//   const dynamicFarePerSeat = Math.round(
+//     baseFare * demandMultiplier * timeMultiplier * urgencyMultiplier * availabilityMultiplier
+//   );
+//   const totalFare = (dynamicFarePerSeat * selectedSeats.length + windowSeatSurcharge) * groupDiscount;
+
+//   return {
+//     totalFare,
+//     baseFare: baseFare * selectedSeats.length,
+//     dynamicSurcharge: (dynamicFarePerSeat - baseFare) * selectedSeats.length,
+//     windowSeatSurcharge,
+//     groupDiscount: isGroupBooking ? 0.05 : 0, // Track discount applied
+//     breakdown: {
+//       baseFarePerSeat: baseFare,
+//       dynamicFarePerSeat,
+//       windowSeatCount,
+//       demandMultiplier,
+//       timeMultiplier,
+//       urgencyMultiplier,
+//       availabilityMultiplier,
+//       groupDiscount,
+//     },
+//   };
+// };
+
 // Calculate dynamic fare
-const calculateDynamicFare = (baseFare, selectedSeats, bus, travelDate) => {
-  if (!bus || !bus.totalSeats) return { totalFare: baseFare * selectedSeats.length, breakdown: {} };
+const calculateDynamicFare = (baseFare, selectedSeats, bus) => {
+  if (!bus || !bus.totalSeats) {
+    return {
+      totalFare: baseFare * selectedSeats.length,
+      breakdown: {},
+    };
+  }
 
   const { totalSeats, bookedSeats = [], departureTime } = bus;
+
   const availableSeats = totalSeats - bookedSeats.length;
   const bookedPercentage = bookedSeats.length / totalSeats;
   const availabilityRatio = availableSeats / totalSeats;
 
-  const demandMultiplier = bookedPercentage > 0.7 ? 1.2 : bookedPercentage > 0.5 ? 1.1 : 1.0;
-  const departureDate = new Date(departureTime);
-  const hours = departureDate.getHours();
+  // Demand multiplier
+  const demandMultiplier =
+    bookedPercentage > 0.7
+      ? 1.2
+      : bookedPercentage > 0.5
+      ? 1.1
+      : 1.0;
+
+  // Use departure time (not travelDate) for all time calculations
+  const departure = new Date(departureTime);
+
+  // Get departure hour in IST
+  const departureIST = new Date(
+    departure.toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
+    })
+  );
+
+  const hours = departureIST.getHours();
+
+  // Peak hours: 5 PM - 10 PM IST
   const isPeakTime = hours >= 17 && hours <= 22;
   const timeMultiplier = isPeakTime ? 1.15 : 1.0;
-  const timeUntilTravel = (new Date(travelDate) - new Date()) / (1000 * 60 * 60);
-  const urgencyMultiplier = timeUntilTravel < 24 ? 1.1 : 1.0;
-  const availabilityMultiplier = availabilityRatio < 0.2 ? 1.25 : availabilityRatio < 0.4 ? 1.15 : 1.0;
 
+  // Hours remaining until departure
+  const now = new Date();
+  const timeUntilTravel =
+    (departure.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+  const urgencyMultiplier = timeUntilTravel < 24 ? 1.1 : 1.0;
+
+  // Availability multiplier
+  const availabilityMultiplier =
+    availabilityRatio < 0.2
+      ? 1.25
+      : availabilityRatio < 0.4
+      ? 1.15
+      : 1.0;
+
+  // Window seat surcharge
   const windowSeats = getWindowSeats(totalSeats);
-  const windowSeatCount = selectedSeats.filter(seat => windowSeats.includes(seat)).length;
+
+  const windowSeatCount = selectedSeats.filter((seat) =>
+    windowSeats.includes(seat)
+  ).length;
+
   const windowSeatSurcharge = windowSeatCount * 100;
 
+  // Group booking discount
   const groupSize = selectedSeats.length;
-  const isGroupBooking = groupSize >= 4; // Define group booking threshold
-  const groupDiscount = isGroupBooking ? 0.95 : 1.0; // 5% discount for groups
+  const isGroupBooking = groupSize >= 4;
+  const groupDiscount = isGroupBooking ? 0.95 : 1.0;
 
+  // Final fare
   const dynamicFarePerSeat = Math.round(
-    baseFare * demandMultiplier * timeMultiplier * urgencyMultiplier * availabilityMultiplier
+    baseFare *
+      demandMultiplier *
+      timeMultiplier *
+      urgencyMultiplier *
+      availabilityMultiplier
   );
-  const totalFare = (dynamicFarePerSeat * selectedSeats.length + windowSeatSurcharge) * groupDiscount;
+
+  const totalFare = Math.round(
+    (dynamicFarePerSeat * selectedSeats.length +
+      windowSeatSurcharge) *
+      groupDiscount
+  );
 
   return {
     totalFare,
     baseFare: baseFare * selectedSeats.length,
-    dynamicSurcharge: (dynamicFarePerSeat - baseFare) * selectedSeats.length,
+    dynamicSurcharge:
+      (dynamicFarePerSeat - baseFare) * selectedSeats.length,
     windowSeatSurcharge,
-    groupDiscount: isGroupBooking ? 0.05 : 0, // Track discount applied
+    groupDiscount: isGroupBooking ? 0.05 : 0,
     breakdown: {
       baseFarePerSeat: baseFare,
       dynamicFarePerSeat,
@@ -156,6 +259,8 @@ const calculateDynamicFare = (baseFare, selectedSeats, bus, travelDate) => {
       urgencyMultiplier,
       availabilityMultiplier,
       groupDiscount,
+      departureHourIST: hours,
+      timeUntilTravel,
     },
   };
 };
@@ -265,7 +370,7 @@ router.post('/', authenticate, async (req, res) => {
       });
     }
 
-    const fareDetails = calculateDynamicFare(bus.fare, selectedSeats, bus, travelDate);
+    const fareDetails = calculateDynamicFare(bus.fare, selectedSeats, bus);
     if (Math.abs(totalFare - fareDetails.totalFare) > 1) {
       return res.status(400).json({
         error: 'Invalid total fare provided',
