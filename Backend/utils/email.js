@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const https = require('https');
 
 const hasSmtpConfig = process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS;
 let transporter = null;
@@ -66,33 +67,65 @@ const sendEmail = async (toOrParams, subjectParam, textParam) => {
     return { success: false, error: 'Invalid email address' };
   }
 
-  // 1. If Resend API key is configured, try sending via Resend HTTP API
-  if (process.env.RESEND_API_KEY && typeof fetch !== 'undefined') {
+  // 1. If Resend API key is configured, try sending via Resend HTTP API (using core https module)
+  if (process.env.RESEND_API_KEY) {
     try {
       const fromAddress = process.env.EMAIL_FROM || 'onboarding@resend.dev';
       console.log(`📨 Attempting to send email via Resend API from: ${fromAddress}`);
-      
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+
+      const resData = await new Promise((resolve, reject) => {
+        const postData = JSON.stringify({
           from: fromAddress,
           to: [email],
           subject: subject,
           html: html || `<p>${text}</p>`,
           text: text || html?.replace(/<[^>]*>/g, ''),
-        }),
+        });
+
+        const options = {
+          hostname: 'api.resend.com',
+          port: 443,
+          path: '/emails',
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(postData),
+          },
+        };
+
+        const req = https.request(options, (res) => {
+          let body = '';
+          res.on('data', (chunk) => body += chunk);
+          res.on('end', () => {
+            let parsed = {};
+            try {
+              parsed = JSON.parse(body);
+            } catch (e) {
+              parsed = { error: body };
+            }
+
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+              resolve({ ok: true, data: parsed });
+            } else {
+              resolve({ ok: false, data: parsed });
+            }
+          });
+        });
+
+        req.on('error', (e) => {
+          reject(e);
+        });
+
+        req.write(postData);
+        req.end();
       });
 
-      const resData = await response.json();
-      if (response.ok) {
-        console.log('✅ Email sent via Resend API successfully:', resData.id);
-        return { success: true, messageId: resData.id };
+      if (resData.ok) {
+        console.log('✅ Email sent via Resend API successfully:', resData.data.id);
+        return { success: true, messageId: resData.data.id };
       } else {
-        console.error('❌ Resend API returned error:', resData);
+        console.error('❌ Resend API returned error:', resData.data);
       }
     } catch (resendError) {
       console.error('❌ Resend API sending failed:', resendError.message);
