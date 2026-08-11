@@ -16,7 +16,7 @@ const Destination = () => {
 
     return (
         <div className='w-full space-y-4'>
-            {/* Added heading with proper alignment */}
+            {/* Added heading with proper alignment. */}
             <h2 className="text-lg font-semibold text-neutral-800 dark:text-white md:text-xl">
                 Choose a Destination
             </h2>
