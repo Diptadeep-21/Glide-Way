@@ -66,7 +66,40 @@ const sendEmail = async (toOrParams, subjectParam, textParam) => {
     return { success: false, error: 'Invalid email address' };
   }
 
-  // 1. If SMTP is configured, try sending
+  // 1. If Resend API key is configured, try sending via Resend HTTP API
+  if (process.env.RESEND_API_KEY && typeof fetch !== 'undefined') {
+    try {
+      const fromAddress = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+      console.log(`📨 Attempting to send email via Resend API from: ${fromAddress}`);
+      
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [email],
+          subject: subject,
+          html: html || `<p>${text}</p>`,
+          text: text || html?.replace(/<[^>]*>/g, ''),
+        }),
+      });
+
+      const resData = await response.json();
+      if (response.ok) {
+        console.log('✅ Email sent via Resend API successfully:', resData.id);
+        return { success: true, messageId: resData.id };
+      } else {
+        console.error('❌ Resend API returned error:', resData);
+      }
+    } catch (resendError) {
+      console.error('❌ Resend API sending failed:', resendError.message);
+    }
+  }
+
+  // 2. If Resend is not configured or failed, and SMTP is configured, try sending via SMTP
   if (transporter) {
     try {
       const from = `"GlideWay" <${process.env.EMAIL_USER}>`;
