@@ -82,7 +82,7 @@ const EditSchedule = () => {
         });
         setExistingImageUrl(
           bus.image
-            ? `${import.meta.env.VITE_API_BASE_URL}/Uploads/${bus.image}`
+            ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${bus.image}`
             : ''
         );
 
@@ -349,7 +349,7 @@ const EditSchedule = () => {
               alt="Current Bus"
               className="w-32 h-32 mt-4 object-cover rounded-lg shadow-md"
               onError={(e) => {
-                e.target.src = `${import.meta.env.VITE_API_BASE_URL}/Uploads/no-image.png`;
+                e.target.src = `${import.meta.env.VITE_API_BASE_URL}/uploads/no-image.png`;
               }}
             />
           )}
