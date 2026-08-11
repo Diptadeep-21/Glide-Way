@@ -30,6 +30,18 @@ router.get('/__email-test', async (req, res) => {
   res.json({ success: true });
 });
 
+// Debug email configuration in production
+router.get('/__debug-email', (req, res) => {
+  res.json({
+    timestamp: new Date().toISOString(),
+    resendApiKeyExists: !!process.env.RESEND_API_KEY,
+    resendApiKeyLength: process.env.RESEND_API_KEY?.length,
+    emailFrom: process.env.EMAIL_FROM,
+    nodeVersion: process.version,
+    smtpConfigured: !!(process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS),
+  });
+});
+
 
 
 // Email utility functions imported from utils/email.js
