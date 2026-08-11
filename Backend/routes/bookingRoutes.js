@@ -5,7 +5,12 @@ const Bus = require('../models/Bus');
 const Booking = require('../models/Booking');
 const User = require('../models/User');
 const authenticate = require('../middleware/auth');
-const nodemailer = require('nodemailer');
+const {
+  sendBookingEmail,
+  sendCancellationEmail,
+  sendGroupInvitationEmail,
+  sendDelayNoticeEmail
+} = require('../utils/email');
 const Message = require('../models/Message');
 const GroupMessage = require('../models/GroupMessage'); // New import
 const { subHours, startOfHour, subDays, startOfDay } = require('date-fns');
@@ -27,78 +32,7 @@ router.get('/__email-test', async (req, res) => {
 
 
 
-// Nodemailer transporter
-console.log("SMTP DEBUG:", {
-  user: process.env.EMAIL_USER,
-  passExists: !!process.env.EMAIL_PASS,
-  passLength: process.env.EMAIL_PASS?.length,
-});
-
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 10000, // 10s
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
-
-// Send booking confirmation email
-const sendBookingEmail = async (booking, bus) => {
-  try {
-    const trackingLink = booking.trackingLink || (bus.isTrackingEnabled ? `${process.env.FRONTEND_URL}/track-bus/${booking.busId}/${booking._id}` : null);
-    const chatLink = booking.isChatEnabled ? `${process.env.FRONTEND_URL}/booking-summary/${booking._id}` : null;
-    await transporter.sendMail({
-      from: `"GlideWay" <${process.env.EMAIL_USER}>`,
-      to: booking.contactDetails.email,
-      subject: 'Booking Confirmation',
-      html: `
-        <h2>Booking Confirmed</h2>
-        <p><strong>Booking ID:</strong> ${booking._id}</p>
-        <p><strong>Route:</strong> ${bus.source} to ${bus.destination}</p>
-        <p><strong>Seats:</strong> ${booking.seatsBooked.join(', ')}</p>
-        <p><strong>Boarding Point:</strong> ${booking.boardingPoint || 'N/A'}</p>
-        <p><strong>Total Fare:</strong> ₹${booking.totalFare}</p>
-        <p><strong>Travel Date:</strong> ${new Date(booking.travelDate).toLocaleDateString('en-IN')}</p>
-        ${trackingLink ? `<p><a href="${trackingLink}">Track Your Bus</a></p>` : '<p>Live tracking not available</p>'}
-        ${chatLink ? `<p><a href="${chatLink}">Chat with Driver</a></p>` : '<p>Chat with driver not available</p>'}
-      `,
-    });
-  } catch (err) {
-    console.error('Error sending booking email:', err.message);
-    throw new Error('Failed to send booking confirmation email');
-  }
-};
-
-// Send cancellation confirmation email
-const sendCancellationEmail = async (booking, bus) => {
-  try {
-    await transporter.sendMail({
-      from: `"GlideWay" <${process.env.EMAIL_USER}>`,
-      to: booking.contactDetails.email,
-      subject: 'Booking Cancellation Confirmation',
-      html: `
-        <h2>Booking Cancelled</h2>
-        <p>Your booking has been successfully cancelled.</p>
-        <p><strong>Booking ID:</strong> ${booking._id}</p>
-        <p><strong>Route:</strong> ${bus.source} to ${bus.destination}</p>
-        <p><strong>Seats:</strong> ${booking.seatsBooked.join(', ')}</p>
-        <p><strong>Boarding Point:</strong> ${booking.boardingPoint || 'N/A'}</p>
-        <p><strong>Total Fare:</strong> ₹${booking.totalFare}</p>
-        <p><strong>Travel Date:</strong> ${new Date(booking.travelDate).toLocaleDateString('en-IN')}</p>
-        <p><strong>Cancellation Reason:</strong> ${booking.cancellationReason || 'Not provided'}</p>
-        <p>If you have any questions, please contact our support team.</p>
-      `,
-    });
-  } catch (err) {
-    console.error('Error sending cancellation email:', err.message);
-    throw new Error('Failed to send cancellation confirmation email');
-  }
-};
+// Email utility functions imported from utils/email.js
 
 // Get window seats for dynamic fare calculation
 const getWindowSeats = (totalSeats) => {
@@ -383,28 +317,10 @@ router.post('/', authenticate, async (req, res) => {
 
 
     if (isGroupBooking) {
-      const groupChatLink = booking.allowSocialTravel
-        ? (email) => `${process.env.FRONTEND_URL}/group-chat/${booking._id}/${encodeURIComponent(email)}`
-        : null;
-
       for (const member of groupMembers) {
         if (member.email && member.email !== contactDetails.email) {
-          await transporter.sendMail({
-            from: `"GlideWay" <${process.env.EMAIL_USER}>`,
-            to: member.email,
-            subject: 'Group Booking Invitation',
-            html: `
-    <h2>You've Been Added to a Group Booking</h2>
-    <p><strong>Booking ID:</strong> ${booking._id}</p>
-    <p><strong>Route:</strong> ${bus.source} to ${bus.destination}</p>
-    <p><strong>Travel Date:</strong> ${new Date(booking.travelDate).toLocaleDateString('en-IN')}</p>
-    <p>Please confirm your participation: <a href="${process.env.FRONTEND_URL}/confirm-group-booking/${booking._id}/${member.email}">Confirm</a></p>
-    ${groupChatLink
-                ? `<p>Join the group chat: <a href="${groupChatLink(member.email)}">Join Group Chat</a></p>`
-                : '<p>Group chat not available</p>'}
-  `,
-          });
-
+          sendGroupInvitationEmail(member.email, booking, bus)
+            .catch(err => console.error('Group invitation email failed:', err.message));
         }
       }
     }
@@ -504,7 +420,7 @@ router.post('/:id/cancel', authenticate, async (req, res) => {
       { $pull: { bookedSeats: { $in: booking.seatsBooked } } }
     );
 
-    await sendCancellationEmail(booking, bus);
+    sendCancellationEmail(booking, bus).catch(err => console.error('Cancellation email failed:', err.message));
 
     const io = req.app.get('io');
     if (io) {
@@ -1403,18 +1319,8 @@ router.post('/:id/delay', authenticate, async (req, res) => {
     await booking.save();
 
     // Send email
-    await transporter.sendMail({
-      from: `"GlideWay" <${process.env.EMAIL_USER}>`,
-      to: booking.contactDetails.email,
-      subject: `Delay Notice for Your Booking (${booking._id})`,
-      html: `
-        <h3>Important Update: Delay in Your Journey</h3>
-        <p><strong>Route:</strong> ${booking.busId.source} to ${booking.busId.destination}</p>
-        <p><strong>Seats:</strong> ${booking.seatsBooked.join(', ')}</p>
-        <p><strong>Travel Date:</strong> ${new Date(booking.travelDate).toLocaleDateString('en-IN')}</p>
-        <p><strong>Delay Notice:</strong> ${delayNotice}</p>
-      `
-    });
+    sendDelayNoticeEmail(booking, delayNotice)
+      .catch(err => console.error('Delay notice email failed:', err.message));
 
     // Emit via Socket.IO
     const io = req.app.get('io');

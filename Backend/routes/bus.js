@@ -19,6 +19,11 @@ const upload = multer({ storage });
 
 // Add a new bus
 router.post('/add', authenticate, upload.single('image'), async (req, res) => {
+
+  console.log("req.file =", req.file);
+    console.log("req.body =", req.body);
+
+
   try {
     const {
       source,
@@ -252,7 +257,7 @@ router.get('/mybuses', authenticate, async (req, res) => {
     const buses = await Bus.find({ driverId: req.user.id });
     const busesWithImages = buses.map(bus => ({
       ...bus.toObject(),
-      imageUrl: bus.image ? `${process.env.SERVER_URL}/uploads/${bus.image}` : null,
+      imageUrl: bus.image ? `${process.env.BASE_URL}/uploads/${bus.image}` : null,
       currentLocation: bus.currentLocation,
       isTrackingEnabled: bus.isTrackingEnabled,
       haltingTime: bus.haltingTime,
@@ -376,7 +381,7 @@ router.get('/all', async (req, res) => {
       console.log('Processing bus:', bus); // Log each bus being processed
       return {
         ...bus.toObject(),
-        imageUrl: bus.image ? `${process.env.SERVER_URL}/Uploads/${bus.image}` : null,
+        imageUrl: bus.image ? `${process.env.BASE_URL}/uploads/${bus.image}` : null,
         currentLocation: bus.currentLocation,
         isTrackingEnabled: bus.isTrackingEnabled,
         haltingTime: bus.haltingTime,
@@ -426,7 +431,7 @@ router.get('/search', async (req, res) => {
 
     const busesWithDetails = buses.map((bus) => ({
       ...bus.toObject(),
-      imageUrl: bus.image ? `${process.env.SERVER_URL}/Uploads/${bus.image}` : null,
+      imageUrl: bus.image ? `${process.env.BASE_URL}/uploads/${bus.image}` : null,
     }));
 
     res.json({ buses: busesWithDetails });
@@ -615,7 +620,7 @@ router.get('/:id', async (req, res) => {
         pendingSeats,
         userPendingSeats,
         allTakenSeats,
-        imageUrl: bus.image ? `${process.env.SERVER_URL}/Uploads/${bus.image}` : null,
+        imageUrl: bus.image ? `${process.env.BASE_URL}/uploads/${bus.image}` : null,
         currentLocation: bus.currentLocation,
         isTrackingEnabled: bus.isTrackingEnabled,
         haltingTime: bus.haltingTime,
