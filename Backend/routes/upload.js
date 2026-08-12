@@ -41,9 +41,10 @@ router.post('/', upload.single('image'), async (req, res) => {
     const uploadedUrl = await uploadToCloudinary(req.file, 'glideway_general');
     
     // Fallback: If it's just a local filename, prepend base URL
+    const baseUrl = process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:5000';
     const imageUrl = uploadedUrl.startsWith('http') 
       ? uploadedUrl 
-      : `${process.env.BASE_URL}/uploads/${uploadedUrl}`;
+      : `${baseUrl}/uploads/${uploadedUrl}`;
       
     res.json({ imageUrl });
   } catch (err) {

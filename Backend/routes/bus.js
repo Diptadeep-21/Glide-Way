@@ -9,7 +9,8 @@ const uploadToCloudinary = require('../utils/cloudinaryUpload');
 
 const getImageUrl = (image) => {
   if (!image) return null;
-  return image.startsWith('http') ? image : `${process.env.BASE_URL}/uploads/${image}`;
+  const baseUrl = process.env.BASE_URL || process.env.RENDER_EXTERNAL_URL || 'http://localhost:5000';
+  return image.startsWith('http') ? image : `${baseUrl}/uploads/${image}`;
 };
 
 // Multer setup.
