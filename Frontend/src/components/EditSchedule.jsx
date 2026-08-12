@@ -80,11 +80,7 @@ const EditSchedule = () => {
           boardingPoints: bus.boardingPoints?.join(', ') || '',
           busType: bus.busType || 'AC',
         });
-        setExistingImageUrl(
-          bus.image
-            ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${bus.image}`
-            : ''
-        );
+        setExistingImageUrl(bus.imageUrl || '');
 
         setLoading(false);
       } catch (err) {

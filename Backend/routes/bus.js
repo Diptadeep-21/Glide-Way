@@ -5,6 +5,12 @@ const authenticate = require('../middleware/auth');
 const Booking = require('../models/Booking');
 const Bus = require('../models/Bus');
 const { getAssignedBuses, getBookingsByBus } = require('../controllers/bookingController');
+const uploadToCloudinary = require('../utils/cloudinaryUpload');
+
+const getImageUrl = (image) => {
+  if (!image) return null;
+  return image.startsWith('http') ? image : `${process.env.BASE_URL}/uploads/${image}`;
+};
 
 // Multer setup.
 const storage = multer.diskStorage({
@@ -77,7 +83,7 @@ router.post('/add', authenticate, upload.single('image'), async (req, res) => {
       busNumber,
       totalSeats: Number(totalSeats),
       fare: Number(fare),
-      image: req.file ? req.file.filename : null,
+      image: req.file ? await uploadToCloudinary(req.file) : null,
       isTrackingEnabled: false,
       currentLocation: null,
       haltingTime: haltingTime || null,
@@ -257,7 +263,7 @@ router.get('/mybuses', authenticate, async (req, res) => {
     const buses = await Bus.find({ driverId: req.user.id });
     const busesWithImages = buses.map(bus => ({
       ...bus.toObject(),
-      imageUrl: bus.image ? `${process.env.BASE_URL}/uploads/${bus.image}` : null,
+      imageUrl: getImageUrl(bus.image),
       currentLocation: bus.currentLocation,
       isTrackingEnabled: bus.isTrackingEnabled,
       haltingTime: bus.haltingTime,
@@ -334,7 +340,7 @@ router.put('/:id', authenticate, upload.single('image'), async (req, res) => {
       busNumber: busNumber || bus.busNumber,
       totalSeats: totalSeats ? Number(totalSeats) : bus.totalSeats,
       fare: fare ? Number(fare) : bus.fare,
-      image: req.file ? req.file.filename : bus.image,
+      image: req.file ? await uploadToCloudinary(req.file) : bus.image,
       haltingTime: haltingTime !== undefined ? haltingTime : bus.haltingTime,
       boardingPoints: parsedBoardingPoints,
       busType: busType || bus.busType // Preserve existing busType if not provided
@@ -381,7 +387,7 @@ router.get('/all', async (req, res) => {
       console.log('Processing bus:', bus); // Log each bus being processed
       return {
         ...bus.toObject(),
-        imageUrl: bus.image ? `${process.env.BASE_URL}/uploads/${bus.image}` : null,
+        imageUrl: getImageUrl(bus.image),
         currentLocation: bus.currentLocation,
         isTrackingEnabled: bus.isTrackingEnabled,
         haltingTime: bus.haltingTime,
@@ -431,7 +437,7 @@ router.get('/search', async (req, res) => {
 
     const busesWithDetails = buses.map((bus) => ({
       ...bus.toObject(),
-      imageUrl: bus.image ? `${process.env.BASE_URL}/uploads/${bus.image}` : null,
+      imageUrl: getImageUrl(bus.image),
     }));
 
     res.json({ buses: busesWithDetails });
@@ -620,7 +626,7 @@ router.get('/:id', async (req, res) => {
         pendingSeats,
         userPendingSeats,
         allTakenSeats,
-        imageUrl: bus.image ? `${process.env.BASE_URL}/uploads/${bus.image}` : null,
+        imageUrl: getImageUrl(bus.image),
         currentLocation: bus.currentLocation,
         isTrackingEnabled: bus.isTrackingEnabled,
         haltingTime: bus.haltingTime,

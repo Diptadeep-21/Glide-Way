@@ -3,6 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const router = express.Router();
 const fs = require('fs');
+const uploadToCloudinary = require('../utils/cloudinaryUpload');
 
 // Set storage for uploaded images
 const storage = multer.diskStorage({
@@ -31,15 +32,23 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
-router.post('/', upload.single('image'), (req, res) => {
+router.post('/', upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  // const imageUrl = `https://glide-way-backend.onrender.com/uploads/${req.file.filename}`;
-  //const imageUrl = `http://localhost:5000/uploads/${req.file.filename}`;
-  const imageUrl = `${process.env.BASE_URL}/uploads/${req.file.filename}`;
-  res.json({ imageUrl });
+  try {
+    const uploadedUrl = await uploadToCloudinary(req.file, 'glideway_general');
+    
+    // Fallback: If it's just a local filename, prepend base URL
+    const imageUrl = uploadedUrl.startsWith('http') 
+      ? uploadedUrl 
+      : `${process.env.BASE_URL}/uploads/${uploadedUrl}`;
+      
+    res.json({ imageUrl });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to upload image to storage' });
+  }
 });
 
 module.exports = router;

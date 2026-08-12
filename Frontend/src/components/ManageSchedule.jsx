@@ -422,7 +422,7 @@ const ManageSchedule = () => {
                 <td className="px-4 py-2 border">
                   {bus.image ? (
                     <img
-                      src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/uploads/${bus.image}`}
+                      src={bus.imageUrl}
                       alt="Bus"
                       className="w-[50px] h-[50px] object-cover mx-auto rounded"
                       onError={handleImageError}
