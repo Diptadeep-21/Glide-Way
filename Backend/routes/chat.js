@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const Message = require('../models/Message');
 const auth = require('../middleware/auth');
+const Booking = require('../models/Booking');
+const Bus = require('../models/Bus');
 require('../models/User');
 require('../models/Driver');
 
@@ -12,6 +14,21 @@ router.get('/messages/:bookingId', auth, async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(bookingId)) {
       return res.status(400).json({ message: 'Invalid booking ID' });
+    }
+
+    const booking = await Booking.findById(bookingId).populate('busId');
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    const isOwner = booking.userId?.toString() === req.user.id || 
+                    booking.groupLeadUserId?.toString() === req.user.id ||
+                    booking.groupMembers?.some(m => m.userId?.toString() === req.user.id);
+    const isDriver = booking.busId?.driverId?.toString() === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isDriver && !isAdmin) {
+      return res.status(403).json({ message: 'Access Denied: Unauthorized to access this chat' });
     }
 
     const messages = await Message.find({ bookingId })

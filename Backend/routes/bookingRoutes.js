@@ -5,6 +5,7 @@ const Bus = require('../models/Bus');
 const Booking = require('../models/Booking');
 const User = require('../models/User');
 const authenticate = require('../middleware/auth');
+const restrictTo = require('../middleware/restrictTo');
 const {
   sendBookingEmail,
   sendCancellationEmail,
@@ -16,7 +17,7 @@ const GroupMessage = require('../models/GroupMessage'); // New import
 const { subHours, startOfHour, subDays, startOfDay } = require('date-fns');
 
 //Test-email at production
-router.get('/__email-test', async (req, res) => {
+router.get('/__email-test', authenticate, restrictTo('admin'), async (req, res) => {
   sendBookingEmail({
     _id: 'TEST123',
     seatsBooked: [1],
@@ -31,7 +32,7 @@ router.get('/__email-test', async (req, res) => {
 });
 
 // Debug email configuration in production
-router.get('/__debug-email', (req, res) => {
+router.get('/__debug-email', authenticate, restrictTo('admin'), (req, res) => {
   res.json({
     timestamp: new Date().toISOString(),
     resendApiKeyExists: !!process.env.RESEND_API_KEY,
@@ -737,6 +738,14 @@ router.get('/social/:busId', authenticate, async (req, res) => {
     const bus = await Bus.findById(busId);
     if (!bus) return res.status(404).json({ error: 'Bus not found' });
 
+    const hasBooking = await Booking.exists({ busId, userId: req.user.id, status: 'confirmed' });
+    const isDriver = bus.driverId?.toString() === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+
+    if (!hasBooking && !isDriver && !isAdmin) {
+      return res.status(403).json({ error: 'Unauthorized: You must have a confirmed booking on this bus to view social travel data.' });
+    }
+
     const bookings = await Booking.find({
       busId,
       status: 'confirmed',
@@ -859,7 +868,7 @@ router.get('/mybookings', authenticate, async (req, res) => {
 });
 
 // Get booking trends (last 24 hours)
-router.get('/trends', async (req, res) => {
+router.get('/trends', authenticate, restrictTo('admin'), async (req, res) => {
   try {
     const endDate = new Date();
     const startDate = new Date(endDate.getTime() - 24 * 60 * 60 * 1000);
@@ -1165,10 +1174,11 @@ router.get('/today-revenue', authenticate, async (req, res) => {
 });
 
 // Public route to get booking details by ID for guest group members
-router.get('/public/:id', async (req, res) => {
+router.get('/public/:id/:email', async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id)
-      .select('busId seatsBooked travelDate contactDetails passengers isGroupBooking')
+    const { id, email } = req.params;
+    const booking = await Booking.findById(id)
+      .select('busId seatsBooked travelDate contactDetails passengers isGroupBooking groupMembers')
       .populate({
         path: 'busId',
         select: 'busName busNumber source destination departureTime destinationTime',
@@ -1176,6 +1186,13 @@ router.get('/public/:id', async (req, res) => {
 
     if (!booking || !booking.isGroupBooking) {
       return res.status(404).json({ error: 'Group booking not found' });
+    }
+
+    const isMember = booking.groupMembers.some(m => m.email === email);
+    const isLead = booking.contactDetails?.email === email;
+
+    if (!isMember && !isLead) {
+      return res.status(403).json({ error: 'Access Denied: You are not authorized to view this group booking.' });
     }
 
     res.json({
@@ -1207,6 +1224,16 @@ router.get('/:id', authenticate, async (req, res) => {
       })
       .populate('userId', 'name email');
     if (!booking) return res.status(404).json({ error: 'Booking not found' });
+
+    const isOwner = booking.userId?._id?.toString() === req.user.id || 
+                    booking.groupLeadUserId?.toString() === req.user.id ||
+                    booking.groupMembers?.some(m => m.userId?.toString() === req.user.id);
+    const isDriver = booking.busId?.driverId?.toString() === req.user.id;
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isDriver && !isAdmin) {
+      return res.status(403).json({ error: 'Access Denied: Unauthorized to view this booking' });
+    }
 
     const now = new Date();
     const isChatEnabled = booking.status !== 'completed' && booking.status !== 'cancelled' && new Date(booking.travelDate) >= now;
@@ -1360,12 +1387,19 @@ router.get('/:bookingId/group-member/:email', async (req, res) => {
   }
 });
 
-router.get('/:bookingId/public-group-passengers', async (req, res) => {
+router.get('/:bookingId/public-group-passengers/:email', async (req, res) => {
   try {
-    const { bookingId } = req.params;
+    const { bookingId, email } = req.params;
     const booking = await Booking.findById(bookingId).populate('userId', 'name email');
     if (!booking || !booking.isGroupBooking) {
       return res.status(404).json({ error: 'Group booking not found' });
+    }
+
+    const isLeadPassenger = booking.contactDetails?.email === email;
+    const isConfirmedGroupMember = booking.groupMembers.some(m => m.email === email && m.isConfirmed);
+
+    if (!isLeadPassenger && !isConfirmedGroupMember) {
+      return res.status(403).json({ error: 'Access denied. You are not authorized to view group passengers.' });
     }
 
     const passengers = booking.passengers.map((p, index) => ({

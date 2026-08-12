@@ -5,6 +5,16 @@ const Bus = require('../models/Bus');
 const getBookingsByBus = async (req, res) => {
     try {
         const { busId } = req.params;
+        
+        const bus = await Bus.findById(busId);
+        if (!bus) {
+            return res.status(404).json({ error: 'Bus not found' });
+        }
+
+        if (bus.driverId?.toString() !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Unauthorized: Only the assigned driver or admin can view bookings for this bus' });
+        }
+
         const bookings = await Booking.find({ busId }).lean();
         res.status(200).json(bookings);
     } catch (error) {

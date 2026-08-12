@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Booking = require('../models/Booking');
 const Bus = require('../models/Bus');
 const authenticate = require('../middleware/auth');
+const restrictTo = require('../middleware/restrictTo');
 
 // Submit amenity feedback
 router.post('/feedback/:bookingId', authenticate, async (req, res) => {
@@ -107,6 +108,11 @@ router.get('/ratings/bus/:busId/details', authenticate, async (req, res) => {
   const { busId } = req.params;
 
   try {
+    const bus = await Bus.findById(busId);
+    if (!bus) return res.status(404).json({ error: 'Bus not found' });
+    if (bus.driverId?.toString() !== req.user.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Unauthorized to view rating details for this bus' });
+    }
     const bookings = await Booking.find({ busId, 'amenityRatings.0': { $exists: true } })
       .select('amenityRatings createdAt')
       .populate('userId', 'name email');
@@ -163,7 +169,7 @@ router.get('/ratings/bus/:busId/details', authenticate, async (req, res) => {
 });
 
 // In amenities.js
-router.get('/amenity-analytics', authenticate, async (req, res) => {
+router.get('/amenity-analytics', authenticate, restrictTo('admin'), async (req, res) => {
   try {
     const bookings = await Booking.find({
       'amenityRatings.0': { $exists: true },

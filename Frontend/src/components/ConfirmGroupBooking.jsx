@@ -24,7 +24,7 @@ const ConfirmGroupBooking = () => {
     } else {
       console.log('No token found. Proceeding as guest.');
       response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/bookings/public/${bookingId}`
+        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/bookings/public/${bookingId}/${encodeURIComponent(email)}`
       );
     }
 

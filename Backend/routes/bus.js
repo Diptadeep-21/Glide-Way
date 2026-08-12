@@ -5,6 +5,7 @@ const authenticate = require('../middleware/auth');
 const Booking = require('../models/Booking');
 const Bus = require('../models/Bus');
 const { getAssignedBuses, getBookingsByBus } = require('../controllers/bookingController');
+const restrictTo = require('../middleware/restrictTo');
 const uploadToCloudinary = require('../utils/cloudinaryUpload');
 
 const getImageUrl = (image) => {
@@ -26,6 +27,9 @@ const upload = multer({ storage });
 
 // Add a new bus
 router.post('/add', authenticate, upload.single('image'), async (req, res) => {
+  if (req.user.role !== 'admin' && req.user.role !== 'driver') {
+    return res.status(403).json({ error: 'Unauthorized: Only admins or drivers can add buses.' });
+  }
 
   console.log("req.file =", req.file);
     console.log("req.body =", req.body);
@@ -474,10 +478,10 @@ router.get('/type-distribution', authenticate, async (req, res) => {
 });
 
 // Get assigned buses
-router.get('/assigned', authenticate, getAssignedBuses);
+router.get('/assigned', authenticate, restrictTo('driver', 'admin'), getAssignedBuses);
 
 // Get bookings for a specific bus
-router.get('/bookings/bus/:busId', authenticate, getBookingsByBus);
+router.get('/bookings/bus/:busId', authenticate, restrictTo('driver', 'admin'), getBookingsByBus);
 
 // POST /api/bus/:busId/maintenance
 router.post('/:busId/maintenance', authenticate, async (req, res) => {

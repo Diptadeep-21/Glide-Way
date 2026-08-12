@@ -18,7 +18,7 @@ const GroupChatLink = () => {
         const res = await axios.get(`${API_BASE}/api/bookings/${bookingId}/group-member/${encodeURIComponent(email)}`);
         if (res.data.allowed) {
           setAllowed(true);
-          const publicRes = await axios.get(`${API_BASE}/api/bookings/${bookingId}/public-group-passengers`);
+          const publicRes = await axios.get(`${API_BASE}/api/bookings/${bookingId}/public-group-passengers/${encodeURIComponent(email)}`);
           setPassengers(
             publicRes.data.passengers.map(p => ({
               ...p,
