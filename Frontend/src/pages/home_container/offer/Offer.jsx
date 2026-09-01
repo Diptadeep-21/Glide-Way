@@ -8,7 +8,7 @@ const Offer = () => {
   const [copiedSecond, setCopiedSecond] = useState(false);
 
   const handleCopyFirst = () => {
-    navigator.clipboard.writeText("GTECH08")
+    navigator.clipboard.writeText("DIPTA08")
       .then(() => {
         setCopiedFirst(true);
         setTimeout(() => setCopiedFirst(false), 2000);
